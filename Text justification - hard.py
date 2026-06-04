@@ -1,33 +1,30 @@
 class Solution:
     def fullJustify(self, words: List[str], maxWidth: int) -> List[str]:
         res = []
-        line = []          # words in the current line
-        line_len = 0       # sum of word lengths (no spaces) in current line
-
-        for w in words:
-            # +len(line) accounts for one min space between each existing word and w
-            if line_len + len(w) + len(line) > maxWidth:
-                # flush current line, fully justified
-                gaps = len(line) - 1
-                if gaps == 0:
-                    # single word: left-justify, pad right
-                    res.append(line[0] + ' ' * (maxWidth - line_len))
-                else:
-                    spaces = maxWidth - line_len
-                    base, extra = divmod(spaces, gaps)
-                    # left gaps get one extra space when it doesn't divide evenly
-                    built = []
-                    for i, word in enumerate(line):
-                        built.append(word)
-                        if i < gaps:
-                            built.append(' ' * (base + (1 if i < extra else 0)))
-                    res.append(''.join(built))
-                line = []
-                line_len = 0
-            line.append(w)
-            line_len += len(w)
-
-        # last line: left-justified, single spaces, pad right
-        last = ' '.join(line)
-        res.append(last + ' ' * (maxWidth - len(last)))
+        line, length = [], 0
+        i = 0
+        
+        while i < len(words):
+            if length + len(line) + len(words[i]) > maxWidth:
+                # Line complete
+                extra_space = maxWidth - length
+                spaces = extra_space // max(1, len(line) - 1)
+                remainder = extra_space % max(1, len(line) - 1)
+                
+                for j in range(max(1, len(line) - 1)):
+                    line[j] += " " * spaces
+                    if remainder:
+                        line[j] += " "
+                        remainder -= 1
+                res.append("".join(line))
+                line, length = [], 0 # Reset line and length
+                
+            line.append(words[i])
+            length += len(words[i])
+            i += 1
+            
+        # Handling last line
+        last_line = " ".join(line)
+        trail_space = maxWidth - len(last_line)
+        res.append(last_line + " " * trail_space)
         return res
